@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageToolsPro - Professional Image Processing Tools</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        
+        /* Theme Variables */
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --accent-1: #6366f1;
+            --accent-2: #8b5cf6;
+            --accent-3: #ec4899;
+            --neon-glow: 0 0 20px rgba(99, 102, 241, 0.5), 0 0 40px rgba(139, 92, 246, 0.3);
+        }
+        
+        .light-theme {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(0, 0, 0, 0.03);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        /* Glassmorphism */
+        .glass {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .light-theme .glass {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Gradient Backgrounds */
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Neon Effects */
+        .neon-border {
+            box-shadow: var(--neon-glow);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        .neon-button {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .neon-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.6);
+        }
+        
+        /* Animated Background */
+        .hero-bg {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Floating Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .float-anim { animation: float 3s ease-in-out infinite; }
+        
+        /* Pulse Animation */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.6); }
+        }
+        
+        .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+        
+        /* Tool Cards */
+        .tool-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(99, 102, 241, 0.2);
+            border-top-color: var(--accent-1);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3));
+            background-size: 200% 100%;
+            animation: shimmer 2s linear infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* Dropzone */
+        .dropzone {
+            border: 2px dashed rgba(99, 102, 241, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .dropzone.dragover {
+            border-color: var(--accent-1);
+            background: rgba(99, 102, 241, 0.1);
+            transform: scale(1.02);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(var(--accent-1), var(--accent-2));
+            border-radius: 4px;
+        }
+        
+        /* Image Preview Grid */
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .preview-item:hover img {
+            transform: scale(1.1);
+        }
+        
+        /* Tab Navigation */
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+        }
+        
+        /* Range Slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 8px;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            border-radius: 4px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* Social Media Buttons */
+        .social-btn { transition: all 0.3s ease; }
+        .social-btn:hover { transform: scale(1.2) rotate(5deg); }
+        
+        /* Section transitions */
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.5s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu { transform: translateX(100%); transition: transform 0.3s ease; }
+        .mobile-menu.open { transform: translateX(0); }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center flex-col gap-4">
+        <div class="spinner"></div>
+        <p class="text-white text-lg" id="loadingText">Processing images...</p>
+        <div class="w-64 h-2 bg-gray-700 rounded-full overflow-hidden">
+            <div id="progressBar" class="progress-bar h-full w-0 transition-all duration-300"></div>
+        </div>
+        <p class="text-gray-400" id="progressText">0%</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-40 glass">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="#" onclick="showSection('home')" class="flex items-center gap-2">
+                    <div class="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center">
+                        <i class="fas fa-images text-white text-lg"></i>
+                    </div>
+                    <span class="text-xl font-bold gradient-text">ImageToolsPro</span>
+                </a>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="#" onclick="showSection('home')" class="nav-link hover:text-indigo-400 transition-colors">Home</a>
+                    <a href="#" onclick="showSection('tools')" class="nav-link hover:text-indigo-400 transition-colors">Tools</a>
+                    <a href="#" onclick="showSection('resizer')" class="nav-link hover:text-indigo-400 transition-colors">Resizer</a>
+                    <a href="#" onclick="showSection('compressor')" class="nav-link hover:text-indigo-400 transition-colors">Compressor</a>
+                    <a href="#" onclick="showSection('converter')" class="nav-link hover:text-indigo-400 transition-colors">Converter</a>
+                    <a href="#" onclick="showSection('bulk')" class="nav-link hover:text-indigo-400 transition-colors">Bulk Tools</a>
+                </div>
+                
+                <!-- Theme Toggle & Mobile Menu -->
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTheme()" class="w-10 h-10 rounded-full glass flex items-center justify-center hover:scale-110 transition-transform">
+                        <i class="fas fa-moon" id="themeIcon"></i>
+                    </button>
+                    <button onclick="toggleMobileMenu()" class="md:hidden w-10 h-10 rounded-full glass flex items-center justify-center">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="mobile-menu fixed top-0 right-0 w-64 h-full glass z-50 p-6">
+        <button onclick="toggleMobileMenu()" class="absolute top-4 right-4 text-2xl">&times;</button>
+        <div class="flex flex-col gap-4 mt-12">
+            <a href="#" onclick="showSection('home'); toggleMobileMenu();" class="p-3 rounded-lg hover:bg-white/10 transition-colors">Home</a>
+            <a href="#" onclick="showSection('tools'); toggleMobileMenu();" class="p-3 rounded-lg hover:bg-white/10 transition-colors">Tools</a>
+            <a href="#" onclick="showSection('resizer'); toggleMobileMenu();" class="p-3 rounded-lg hover:bg-white/10 transition-colors">Resizer</a>
+            <a href="#" onclick="showSection('compressor'); toggleMobileMenu();" class="p-3 rounded-lg hover:bg-white/10 transition-colors">Compressor</a>
+            <a href="#" onclick="showSection('converter'); toggleMobileMenu();" class="p-3 rounded-lg hover:bg-white/10 transition-colors">Converter</a>
+            <a href="#" onclick="showSection('bulk'); toggleMobileMenu();" class="p-3 rounded-lg hover:bg-white/10 transition-colors">Bulk Tools</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="pt-16">
+        <!-- HOME SECTION -->
+        <section id="home" class="section active">
+            <!-- Hero -->
+            <div class="hero-bg min-h-screen flex items-center justify-center px-4 py-20">
+                <div class="relative z-10 text-center max-w-5xl mx-auto">
+                    <div class="flex justify-center gap-4 mb-8">
+                        <div class="w-16 h-16 rounded-2xl glass neon-border flex items-center justify-center float-anim" style="animation-delay: 0s;">
+                            <i class="fas fa-crop-alt text-2xl text-indigo-400"></i>
+                        </div>
+                        <div class="w-16 h-16 rounded-2xl glass neon-border flex items-center justify-center float-anim" style="animation-delay: 0.2s;">
+                            <i class="fas fa-compress text-2xl text-purple-400"></i>
+                        </div>
+                        <div class="w-16 h-16 rounded-2xl glass neon-border flex items-center justify-center float-anim" style="animation-delay: 0.4s;">
+                            <i class="fas fa-exchange-alt text-2xl text-pink-400"></i>
+                        </div>
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-7xl font-black mb-6">
+                        <span class="gradient-text">ImageToolsPro</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-400 mb-8 max-w-3xl mx-auto">
+                        Professional image processing tools powered by cutting-edge browser technology. 
+                        Resize, compress, and convert images instantly – all processed locally for maximum speed and privacy.
+                    </p>
+                    
+                    <div class="flex flex-wrap justify-center gap-4 mb-12">
+                        <button onclick="showSection('tools')" class="neon-button px-8 py-4 rounded-full text-white font-semibold text-lg">
+                            <i class="fas fa-rocket mr-2"></i>Get Started
+                        </button>
+                        <button onclick="showSection('bulk')" class="glass px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/10 transition-colors">
+                            <i class="fas fa-layer-group mr-2"></i>Bulk Processing
+                        </button>
+                    </div>
+                    
+                    <!-- Features -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16">
+                        <div class="glass rounded-2xl p-6 text-center">
+                            <div class="text-3xl font-bold gradient-text mb-2">100+</div>
+                            <div class="text-gray-400">Images at Once</div>
+                        </div>
+                        <div class="glass rounded-2xl p-6 text-center">
+                            <div class="text-3xl font-bold gradient-text mb-2">100%</div>
+                            <div class="text-gray-400">Browser Based</div>
+                        </div>
+                        <div class="glass rounded-2xl p-6 text-center">
+                            <div class="text-3xl font-bold gradient-text mb-2">ZIP</div>
+                            <div class="text-gray-400">Bulk Download</div>
+                        </div>
+                        <div class="glass rounded-2xl p-6 text-center">
+                            <div class="text-3xl font-bold gradient-text mb-2">Free</div>
+                            <div class="text-gray-400">Forever</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tool Cards Preview -->
+            <div class="max-w-7xl mx-auto px-4 py-20">
+                <h2 class="text-4xl font-bold text-center mb-4">Our <span class="gradient-text">Powerful Tools</span></h2>
+                <p class="text-gray-400 text-center mb-12 max-w-2xl mx-auto">Everything you need to optimize your images for any platform</p>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Resizer Card -->
+                    <div class="tool-card glass rounded-3xl p-8 cursor-pointer" onclick="showSection('resizer')">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center mb-6">
+                            <i class="fas fa-expand-arrows-alt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Image Resizer</h3>
+                        <p class="text-gray-400 mb-4">Resize images to any custom dimension. Perfect for web, print, or social media.</p>
+                        <span class="text-indigo-400 font-medium">Try Now <i class="fas fa-arrow-right ml-2"></i></span>
+                    </div>
+                    
+                    <!-- Compressor Card -->
+                    <div class="tool-card glass rounded-3xl p-8 cursor-pointer" onclick="showSection('compressor')">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center mb-6">
+                            <i class="fas fa-compress-arrows-alt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Image Compressor</h3>
+                        <p class="text-gray-400 mb-4">Reduce file size up to 90% while maintaining quality. Adjustable compression levels.</p>
+                        <span class="text-indigo-400 font-medium">Try Now <i class="fas fa-arrow-right ml-2"></i></span>
+                    </div>
+                    
+                    <!-- Converter Card -->
+                    <div class="tool-card glass rounded-3xl p-8 cursor-pointer" onclick="showSection('converter')">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-6">
+                            <i class="fas fa-sync-alt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Image Converter</h3>
+                        <p class="text-gray-400 mb-4">Convert between JPG, PNG, WEBP, and GIF formats instantly.</p>
+                        <span class="text-indigo-400 font-medium">Try Now <i class="fas fa-arrow-right ml-2"></i></span>
+                    </div>
+                    
+                    <!-- Bulk Tools Card -->
+                    <div class="tool-card glass rounded-3xl p-8 cursor-pointer" onclick="showSection('bulk')">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center mb-6">
+                            <i class="fas fa-layer-group text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Bulk Processing</h3>
+                        <p class="text-gray-400 mb-4">Process up to 100 images at once. Resize, compress, and download as ZIP.</p>
+                        <span class="text-indigo-400 font-medium">Try Now <i class="fas fa-arrow-right ml-2"></i></span>
+                    </div>
+                    
+                    <!-- Social Media Card -->
+                    <div class="tool-card glass rounded-3xl p-8 cursor-pointer" onclick="showSection('social')">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center mb-6">
+                            <i class="fas fa-share-alt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Social Media Optimizer</h3>
+                        <p class="text-gray-400 mb-4">Auto-optimize for WhatsApp, Instagram, Facebook, and more.</p>
+                        <span class="text-indigo-400 font-medium">Try Now <i class="fas fa-arrow-right ml-2"></i></span>
+                    </div>
+                    
+                    <!-- All Tools Card -->
+                    <div class="tool-card glass rounded-3xl p-8 cursor-pointer gradient-bg" onclick="showSection('tools')">
+                        <div class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-th-large text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-white">View All Tools</h3>
+                        <p class="text-white/80 mb-4">Explore our complete suite of image processing tools.</p>
+                        <span class="text-white font-medium">Explore <i class="fas fa-arrow-right ml-2"></i></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOOLS DASHBOARD -->
+        <section id="tools" class="section min-h-screen px-4 py-24">
+            <div class="max-w-7xl mx-auto">
+                <h1 class="text-4xl md:text-5xl font-bold text-center mb-4">
+                    <span class="gradient-text">All Tools</span>
+                </h1>
+                <p class="text-gray-400 text-center mb-12">Choose a tool to get started</p>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="tool-card glass rounded-3xl p-8 cursor-pointer pulse-glow" onclick="showSection('resizer')">
+                        <i class="fas fa-expand-arrows-alt text-4xl text-blue-400 mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-2">Image Resizer</h3>
+                        <p class="text-gray-400">Custom width & height</p>
+                    </div>
+                    
+                    <div class="tool-card glass rounded-3xl p-8 cursor-pointer pulse-glow" onclick="showSection('compressor')">
+                        <i class="fas fa-compress-arrows-alt text-4xl text-green-400 mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-2">Image Compressor</h3>
+                        <p class="text-gray-400">0-100% quality control</p>
+                    </div>
+                    
+                    <div class="tool-card glass rounded-3xl p-8 cursor-pointer pulse-glow" onclick="showSection('converter')">
+                        <i class="fas fa-sync-alt text-4xl text-purple-400 mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-2">Image Converter</h3>
+                        <p class="text-gray-400">JPG ⇔ PNG ⇔ WEBP ⇔ GIF</p>
+                    </div>
+                    
+                    <div class="tool-card glass rounded-3xl p-8 cursor-pointer pulse-glow" onclick="showSection('bulk')">
+                        <i class="fas fa-layer-group text-4xl text-orange-400 mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-2">Bulk Processing</h3>
+                        <p class="text-gray-400">Process 100+ images</p>
+                    </div>
+                    
+                    <div class="tool-card glass rounded-3xl p-8 cursor-pointer pulse-glow" onclick="showSection('social')">
+                        <i class="fas fa-share-alt text-4xl text-pink-400 mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-2">Social Media Sizes</h3>
+                        <p class="text-gray-400">WhatsApp, Instagram, FB</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- IMAGE RESIZER -->
+        <section id="resizer" class="section min-h-screen px-4 py-24">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-blue-500 to-cyan-500 mb-6">
+                        <i class="fas fa-expand-arrows-alt text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">Image <span class="gradient-text">Resizer</span></h1>
+                    <p class="text-gray-400 max-w-2xl mx-auto">Resize your images to any custom dimension while maintaining quality</p>
+                </div>
+                
+                <!-- Dropzone -->
+                <div id="resizerDropzone" class="dropzone glass rounded-3xl p-12 text-center mb-8 cursor-pointer" onclick="document.getElementById('resizerInput').click()">
+                    <input type="file" id="resizerInput" accept="image/*" multiple class="hidden" onchange="handleResizerFiles(this.files)">
+                    <i class="fas fa-cloud-upload-alt text-6xl text-indigo-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-2">Drag & Drop Images Here</h3>
+                    <p class="text-gray-400 mb-4">or click to browse (up to 100 images)</p>
+                    <span class="text-sm text-gray-500">Supports JPG, PNG, WEBP, GIF</span>
+                </div>
+                
+                <!-- Options -->
+                <div class="glass rounded-3xl p-8 mb-8">
+                    <h3 class="text-xl font-bold mb-6">Resize Options</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Width (px)</label>
+                            <input type="number" id="resizeWidth" value="800" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Height (px)</label>
+                            <input type="number" id="resizeHeight" value="600" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Maintain Aspect Ratio</label>
+                            <label class="flex items-center gap-3 cursor-pointer mt-3">
+                                <input type="checkbox" id="maintainRatio" checked class="w-5 h-5 accent-indigo-500">
+                                <span>Keep proportions</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Preview Grid -->
+                <div id="resizerPreview" class="preview-grid mb-8"></div>
+                
+                <!-- Action Buttons -->
+                <div id="resizerActions" class="hidden flex flex-wrap gap-4 justify-center">
+                    <button onclick="processResize()" class="neon-button px-8 py-4 rounded-full text-white font-semibold">
+                        <i class="fas fa-magic mr-2"></i>Resize All Images
+                    </button>
+                    <button onclick="clearResizer()" class="glass px-8 py-4 rounded-full font-semibold hover:bg-white/10">
+                        <i class="fas fa-trash mr-2"></i>Clear All
+                    </button>
+                </div>
+                
+                <!-- Results -->
+                <div id="resizerResults" class="mt-8"></div>
+            </div>
+        </section>
+
+        <!-- IMAGE COMPRESSOR -->
+        <section id="compressor" class="section min-h-screen px-4 py-24">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-green-500 to-emerald-500 mb-6">
+                        <i class="fas fa-compress-arrows-alt text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">Image <span class="gradient-text">Compressor</span></h1>
+                    <p class="text-gray-400 max-w-2xl mx-auto">Reduce file size without losing quality. Perfect for web optimization.</p>
+                </div>
+                
+                <!-- Dropzone -->
+                <div id="compressorDropzone" class="dropzone glass rounded-3xl p-12 text-center mb-8 cursor-pointer" onclick="document.getElementById('compressorInput').click()">
+                    <input type="file" id="compressorInput" accept="image/*" multiple class="hidden" onchange="handleCompressorFiles(this.files)">
+                    <i class="fas fa-cloud-upload-alt text-6xl text-green-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-2">Drag & Drop Images Here</h3>
+                    <p class="text-gray-400 mb-4">or click to browse (up to 100 images)</p>
+                </div>
+                
+                <!-- Compression Level -->
+                <div class="glass rounded-3xl p-8 mb-8">
+                    <h3 class="text-xl font-bold mb-6">Compression Level</h3>
+                    <div class="flex items-center gap-6">
+                        <span class="text-sm text-gray-400">Max Compression</span>
+                        <input type="range" id="compressionLevel" min="1" max="100" value="80" class="flex-1" oninput="updateCompressionLabel()">
+                        <span class="text-sm text-gray-400">Max Quality</span>
+                    </div>
+                    <div class="text-center mt-4">
+                        <span class="text-3xl font-bold gradient-text" id="compressionValue">80%</span>
+                        <p class="text-gray-400 text-sm">Quality Level</p>
+                    </div>
+                </div>
+                
+                <!-- Preview Grid -->
+                <div id="compressorPreview" class="preview-grid mb-8"></div>
+                
+                <!-- Action Buttons -->
+                <div id="compressorActions" class="hidden flex flex-wrap gap-4 justify-center">
+                    <button onclick="processCompress()" class="neon-button px-8 py-4 rounded-full text-white font-semibold">
+                        <i class="fas fa-compress mr-2"></i>Compress All Images
+                    </button>
+                    <button onclick="clearCompressor()" class="glass px-8 py-4 rounded-full font-semibold hover:bg-white/10">
+                        <i class="fas fa-trash mr-2"></i>Clear All
+                    </button>
+                </div>
+                
+                <!-- Results -->
+                <div id="compressorResults" class="mt-8"></div>
+            </div>
+        </section>
+
+        <!-- IMAGE CONVERTER -->
+        <section id="converter" class="section min-h-screen px-4 py-24">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-purple-500 to-pink-500 mb-6">
+                        <i class="fas fa-sync-alt text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">Image <span class="gradient-text">Converter</span></h1>
+                    <p class="text-gray-400 max-w-2xl mx-auto">Convert images between JPG, PNG, WEBP, and GIF formats</p>
+                </div>
+                
+                <!-- Dropzone -->
+                <div id="converterDropzone" class="dropzone glass rounded-3xl p-12 text-center mb-8 cursor-pointer" onclick="document.getElementById('converterInput').click()">
+                    <input type="file" id="converterInput" accept="image/*" multiple class="hidden" onchange="handleConverterFiles(this.files)">
+                    <i class="fas fa-cloud-upload-alt text-6xl text-purple-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-2">Drag & Drop Images Here</h3>
+                    <p class="text-gray-400 mb-4">or click to browse (up to 100 images)</p>
+                </div>
+                
+                <!-- Format Selection -->
+                <div class="glass rounded-3xl p-8 mb-8">
+                    <h3 class="text-xl font-bold mb-6">Convert To</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <label class="format-option glass rounded-xl p-4 cursor-pointer text-center transition-all hover:scale-105">
+                            <input type="radio" name="convertFormat" value="jpeg" checked class="hidden">
+                            <i class="fas fa-file-image text-3xl text-yellow-400 mb-2"></i>
+                            <p class="font-semibold">JPG</p>
+                        </label>
+                        <label class="format-option glass rounded-xl p-4 cursor-pointer text-center transition-all hover:scale-105">
+                            <input type="radio" name="convertFormat" value="png" class="hidden">
+                            <i class="fas fa-file-image text-3xl text-blue-400 mb-2"></i>
+                            <p class="font-semibold">PNG</p>
+                        </label>
+                        <label class="format-option glass rounded-xl p-4 cursor-pointer text-center transition-all hover:scale-105">
+                            <input type="radio" name="convertFormat" value="webp" class="hidden">
+                            <i class="fas fa-file-image text-3xl text-green-400 mb-2"></i>
+                            <p class="font-semibold">WEBP</p>
+                        </label>
+                        <label class="format-option glass rounded-xl p-4 cursor-pointer text-center transition-all hover:scale-105">
+                            <input type="radio" name="convertFormat" value="gif" class="hidden">
+                            <i class="fas fa-file-image text-3xl text-pink-400 mb-2"></i>
+                            <p class="font-semibold">GIF</p>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Preview Grid -->
+                <div id="converterPreview" class="preview-grid mb-8"></div>
+                
+                <!-- Action Buttons -->
+                <div id="converterActions" class="hidden flex flex-wrap gap-4 justify-center">
+                    <button onclick="processConvert()" class="neon-button px-8 py-4 rounded-full text-white font-semibold">
+                        <i class="fas fa-exchange-alt mr-2"></i>Convert All Images
+                    </button>
+                    <button onclick="clearConverter()" class="glass px-8 py-4 rounded-full font-semibold hover:bg-white/10">
+                        <i class="fas fa-trash mr-2"></i>Clear All
+                    </button>
+                </div>
+                
+                <!-- Results -->
+                <div id="converterResults" class="mt-8"></div>
+            </div>
+        </section>
+
+        <!-- BULK TOOLS -->
+        <section id="bulk" class="section min-h-screen px-4 py-24">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-orange-500 to-red-500 mb-6">
+                        <i class="fas fa-layer-group text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">Bulk <span class="gradient-text">Processing</span></h1>
+                    <p class="text-gray-400 max-w-2xl mx-auto">Process up to 100 images at once - resize, compress, and download as ZIP</p>
+                </div>
+                
+                <!-- Dropzone -->
+                <div id="bulkDropzone" class="dropzone glass rounded-3xl p-12 text-center mb-8 cursor-pointer" onclick="document.getElementById('bulkInput').click()">
+                    <input type="file" id="bulkInput" accept="image/*" multiple class="hidden" onchange="handleBulkFiles(this.files)">
+                    <i class="fas fa-cloud-upload-alt text-6xl text-orange-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-2">Drag & Drop Up to 100 Images</h3>
+                    <p class="text-gray-400 mb-4">or click to browse</p>
+                    <div id="bulkCounter" class="text-lg font-semibold text-indigo-400">0 images selected</div>
+                </div>
+                
+                <!-- Bulk Options -->
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <!-- Resize Options -->
+                    <div class="glass rounded-3xl p-6">
+                        <label class="flex items-center gap-3 mb-4 cursor-pointer">
+                            <input type="checkbox" id="bulkResizeEnabled" class="w-5 h-5 accent-indigo-500">
+                            <span class="text-lg font-semibold">Enable Resize</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-2">Width</label>
+                                <input type="number" id="bulkWidth" value="800" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-2">Height</label>
+                                <input type="number" id="bulkHeight" value="600" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Compress Options -->
+                    <div class="glass rounded-3xl p-6">
+                        <label class="flex items-center gap-3 mb-4 cursor-pointer">
+                            <input type="checkbox" id="bulkCompressEnabled" checked class="w-5 h-5 accent-indigo-500">
+                            <span class="text-lg font-semibold">Enable Compression</span>
+                        </label>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Quality: <span id="bulkQualityValue">80%</span></label>
+                            <input type="range" id="bulkQuality" min="1" max="100" value="80" class="w-full" oninput="document.getElementById('bulkQualityValue').textContent = this.value + '%'">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Preview Grid -->
+                <div id="bulkPreview" class="preview-grid mb-8"></div>
+                
+                <!-- Action Buttons -->
+                <div id="bulkActions" class="hidden flex flex-wrap gap-4 justify-center">
+                    <button onclick="processBulk()" class="neon-button px-8 py-4 rounded-full text-white font-semibold">
+                        <i class="fas fa-cogs mr-2"></i>Process All Images
+                    </button>
+                    <button onclick="downloadBulkZip()" id="bulkDownloadBtn" class="hidden glass px-8 py-4 rounded-full font-semibold hover:bg-white/10">
+                        <i class="fas fa-file-archive mr-2"></i>Download as ZIP
+                    </button>
+                    <button onclick="clearBulk()" class="glass px-8 py-4 rounded-full font-semibold hover:bg-white/10">
+                        <i class="fas fa-trash mr-2"></i>Clear All
+                    </button>
+                </div>
+                
+                <!-- Results -->
+                <div id="bulkResults" class="mt-8"></div>
+            </div>
+        </section>
+
+        <!-- SOCIAL MEDIA OPTIMIZER -->
+        <section id="social" class="section min-h-screen px-4 py-24">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-pink-500 to-rose-500 mb-6">
+                        <i class="fas fa-share-alt text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">Social Media <span class="gradient-text">Optimizer</span></h1>
+                    <p class="text-gray-400 max-w-2xl mx-auto">Automatically resize and optimize images for popular social platforms</p>
+                </div>
+                
+                <!-- Dropzone -->
+                <div id="socialDropzone" class="dropzone glass rounded-3xl p-12 text-center mb-8 cursor-pointer" onclick="document.getElementById('socialInput').click()">
+                    <input type="file" id="socialInput" accept="image/*" multiple class="hidden" onchange="handleSocialFiles(this.files)">
+                    <i class="fas fa-cloud-upload-alt text-6xl text-pink-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-2">Drag & Drop Images Here</h3>
+                    <p class="text-gray-400 mb-4">or click to browse</p>
+                </div>
+                
+                <!-- Platform Selection -->
+                <div class="glass rounded-3xl p-8 mb-8">
+                    <h3 class="text-xl font-bold mb-6">Choose Platform</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <label class="platform-option glass rounded-xl p-4 cursor-pointer text-center transition-all hover:scale-105">
+                            <input type="radio" name="socialPlatform" value="whatsapp" checked class="hidden">
+                            <i class="fab fa-whatsapp text-4xl text-green-500 mb-2"></i>
+                            <p class="font-semibold">WhatsApp</p>
+                            <p class="text-xs text-gray-400">800x800 / 90KB</p>
+                        </label>
+                        <label class="platform-option glass rounded-xl p-4 cursor-pointer text-center transition-all hover:scale-105">
+                            <input type="radio" name="socialPlatform" value="instagram" class="hidden">
+                            <i class="fab fa-instagram text-4xl text-pink-500 mb-2"></i>
+                            <p class="font-semibold">Instagram</p>
+                            <p class="text-xs text-gray-400">1080x1080</p>
+                        </label>
+                        <label class="platform-option glass rounded-xl p-4 cursor-pointer text-center transition-all hover:scale-105">
+                            <input type="radio" name="socialPlatform" value="facebook" class="hidden">
+                            <i class="fab fa-facebook text-4xl text-blue-500 mb-2"></i>
+                            <p class="font-semibold">Facebook</p>
+                            <p class="text-xs text-gray-400">1200x630</p>
+                        </label>
+                        <label class="platform-option glass rounded-xl p-4 cursor-pointer text-center transition-all hover:scale-105">
+                            <input type="radio" name="socialPlatform" value="twitter" class="hidden">
+                            <i class="fab fa-twitter text-4xl text-cyan-400 mb-2"></i>
+                            <p class="font-semibold">Twitter/X</p>
+                            <p class="text-xs text-gray-400">1200x675</p>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Preview Grid -->
+                <div id="socialPreview" class="preview-grid mb-8"></div>
+                
+                <!-- Action Buttons -->
+                <div id="socialActions" class="hidden flex flex-wrap gap-4 justify-center">
+                    <button onclick="processSocial()" class="neon-button px-8 py-4 rounded-full text-white font-semibold">
+                        <i class="fas fa-magic mr-2"></i>Optimize for Platform
+                    </button>
+                    <button onclick="clearSocial()" class="glass px-8 py-4 rounded-full font-semibold hover:bg-white/10">
+                        <i class="fas fa-trash mr-2"></i>Clear All
+                    </button>
+                </div>
+                
+                <!-- Results -->
+                <div id="socialResults" class="mt-8"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass mt-20 py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center">
+                            <i class="fas fa-images text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold gradient-text">ImageToolsPro</span>
+                    </div>
+                    <p class="text-gray-400">Professional image processing tools. Fast, free, and secure.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Tools</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" onclick="showSection('resizer')" class="hover:text-indigo-400 transition-colors">Image Resizer</a></li>
+                        <li><a href="#" onclick="showSection('compressor')" class="hover:text-indigo-400 transition-colors">Image Compressor</a></li>
+                        <li><a href="#" onclick="showSection('converter')" class="hover:text-indigo-400 transition-colors">Image Converter</a></li>
+                        <li><a href="#" onclick="showSection('bulk')" class="hover:text-indigo-400 transition-colors">Bulk Tools</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Features</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>100% Browser-Based</li>
+                        <li>No Upload Needed</li>
+                        <li>Batch Processing</li>
+                        <li>ZIP Download</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Connect</h4>
+                    <div class="flex gap-4">
+                        <a href="https://www.facebook.com/Shashank.verman.0312" class="social-btn w-10 h-10 rounded-full glass flex items-center justify-center text-blue-400"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-btn w-10 h-10 rounded-full glass flex items-center justify-center text-cyan-400"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.instagram.com/official__saanu03/" class="social-btn w-10 h-10 rounded-full glass flex items-center justify-center text-pink-400"><i class="fab fa-instagram"></i></a>
+                        <a href="https://github.com/sanuverman0312-star?tab=repositories" class="social-btn w-10 h-10 rounded-full glass flex items-center justify-center text-gray-400"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-white/10 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 ImageToolsPro By Shashank. All rights reserved. Made with <i class="fas fa-heart text-red-500"></i> for creators.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // =============================================
+        // IMAGETOOLSPRO - COMPLETE JAVASCRIPT
+        // =============================================
+
+        // Global Variables
+        let resizerFiles = [];
+        let compressorFiles = [];
+        let converterFiles = [];
+        let bulkFiles = [];
+        let socialFiles = [];
+        let processedBulkImages = [];
+
+        // =============================================
+        // THEME TOGGLE
+        // =============================================
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const icon = document.getElementById('themeIcon');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+            localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+        }
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('themeIcon').classList.replace('fa-moon', 'fa-sun');
+        }
+
+        // =============================================
+        // MOBILE MENU
+        // =============================================
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('open');
+        }
+
+        // =============================================
+        // SECTION NAVIGATION
+        // =============================================
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // =============================================
+        // LOADING OVERLAY
+        // =============================================
+        function showLoading(text = 'Processing images...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            document.getElementById('loadingOverlay').classList.add('flex');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            document.getElementById('loadingOverlay').classList.remove('flex');
+        }
+
+        function updateProgress(percent) {
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressText').textContent = Math.round(percent) + '%';
+        }
+
+        // =============================================
+        // DRAG & DROP SETUP
+        // =============================================
+        function setupDropzone(dropzoneId, handler) {
+            const dropzone = document.getElementById(dropzoneId);
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, () => dropzone.classList.add('dragover'));
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, () => dropzone.classList.remove('dragover'));
+            });
+            
+            dropzone.addEventListener('drop', (e) => handler(e.dataTransfer.files));
+        }
+
+        // Initialize all dropzones
+        document.addEventListener('DOMContentLoaded', () => {
+            setupDropzone('resizerDropzone', handleResizerFiles);
+            setupDropzone('compressorDropzone', handleCompressorFiles);
+            setupDropzone('converterDropzone', handleConverterFiles);
+            setupDropzone('bulkDropzone', handleBulkFiles);
+            setupDropzone('socialDropzone', handleSocialFiles);
+            
+            // Setup format selection styling
+            document.querySelectorAll('.format-option input, .platform-option input').forEach(input => {
+                input.addEventListener('change', function() {
+                    document.querySelectorAll('.format-option, .platform-option').forEach(opt => {
+                        opt.classList.remove('neon-border');
+                    });
+                    if (this.checked) {
+                        this.closest('.format-option, .platform-option').classList.add('neon-border');
+                    }
+                });
+            });
+            
+            // Set initial selection
+            document.querySelector('.format-option input:checked')?.closest('.format-option')?.classList.add('neon-border');
+            document.querySelector('.platform-option input:checked')?.closest('.platform-option')?.classList.add('neon-border');
+        });
+
+        // =============================================
+        // UTILITY FUNCTIONS
+        // =============================================
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        function createPreviewItem(file, index, prefix) {
+            const reader = new FileReader();
+            const div = document.createElement('div');
+            div.className = 'preview-item glass';
+            div.innerHTML = `
+                <img src="" alt="${file.name}" id="${prefix}Img${index}">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-3">
+                    <div class="text-xs text-white truncate w-full">
+                        <p class="font-medium truncate">${file.name}</p>
+                        <p class="text-gray-300">${formatFileSize(file.size)}</p>
+                    </div>
+                </div>
+                <button onclick="removeFile('${prefix}', ${index})" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            reader.onload = (e) => {
+                document.getElementById(`${prefix}Img${index}`).src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            
+            return div;
+        }
+
+        function removeFile(prefix, index) {
+            switch(prefix) {
+                case 'resizer':
+                    resizerFiles.splice(index, 1);
+                    updatePreview('resizer', resizerFiles, 'resizerPreview', 'resizerActions');
+                    break;
+                case 'compressor':
+                    compressorFiles.splice(index, 1);
+                    updatePreview('compressor', compressorFiles, 'compressorPreview', 'compressorActions');
+                    break;
+                case 'converter':
+                    converterFiles.splice(index, 1);
+                    updatePreview('converter', converterFiles, 'converterPreview', 'converterActions');
+                    break;
+                case 'bulk':
+                    bulkFiles.splice(index, 1);
+                    updatePreview('bulk', bulkFiles, 'bulkPreview', 'bulkActions');
+                    document.getElementById('bulkCounter').textContent = bulkFiles.length + ' images selected';
+                    break;
+                case 'social':
+                    socialFiles.splice(index, 1);
+                    updatePreview('social', socialFiles, 'socialPreview', 'socialActions');
+                    break;
+            }
+        }
+
+        function updatePreview(prefix, files, previewId, actionsId) {
+            const preview = document.getElementById(previewId);
+            preview.innerHTML = '';
+            files.forEach((file, index) => {
+                preview.appendChild(createPreviewItem(file, index, prefix));
+            });
+            document.getElementById(actionsId).classList.toggle('hidden', files.length === 0);
+        }
+
+        // =============================================
+        // IMAGE RESIZER
+        // =============================================
+        function handleResizerFiles(files) {
+            resizerFiles = [...resizerFiles, ...Array.from(files).slice(0, 100 - resizerFiles.length)];
+            updatePreview('resizer', resizerFiles, 'resizerPreview', 'resizerActions');
+        }
+
+        function clearResizer() {
+            resizerFiles = [];
+            document.getElementById('resizerPreview').innerHTML = '';
+            document.getElementById('resizerResults').innerHTML = '';
+            document.getElementById('resizerActions').classList.add('hidden');
+        }
+
+        async function processResize() {
+            if (resizerFiles.length === 0) return;
+            
+            showLoading('Resizing images...');
+            const width = parseInt(document.getElementById('resizeWidth').value);
+            const height = parseInt(document.getElementById('resizeHeight').value);
+            const maintainRatio = document.getElementById('maintainRatio').checked;
+            
+            const results = [];
+            
+            for (let i = 0; i < resizerFiles.length; i++) {
+                updateProgress((i / resizerFiles.length) * 100);
+                const result = await resizeImage(resizerFiles[i], width, height, maintainRatio);
+                results.push(result);
+            }
+            
+            updateProgress(100);
+            hideLoading();
+            displayResults('resizerResults', results, 'Resized');
+        }
+
+        async function resizeImage(file, targetWidth, targetHeight, maintainRatio) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let newWidth = targetWidth;
+                        let newHeight = targetHeight;
+                        
+                        if (maintainRatio) {
+                            const ratio = Math.min(targetWidth / img.width, targetHeight / img.height);
+                            newWidth = img.width * ratio;
+                            newHeight = img.height * ratio;
+                        }
+                        
+                        canvas.width = newWidth;
+                        canvas.height = newHeight;
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                        
+                        canvas.toBlob((blob) => {
+                            resolve({
+                                name: file.name,
+                                originalSize: file.size,
+                                newSize: blob.size,
+                                blob: blob,
+                                url: URL.createObjectURL(blob),
+                                width: newWidth,
+                                height: newHeight
+                            });
+                        }, file.type || 'image/jpeg', 0.92);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // =============================================
+        // IMAGE COMPRESSOR
+        // =============================================
+        function handleCompressorFiles(files) {
+            compressorFiles = [...compressorFiles, ...Array.from(files).slice(0, 100 - compressorFiles.length)];
+            updatePreview('compressor', compressorFiles, 'compressorPreview', 'compressorActions');
+        }
+
+        function updateCompressionLabel() {
+            document.getElementById('compressionValue').textContent = document.getElementById('compressionLevel').value + '%';
+        }
+
+        function clearCompressor() {
+            compressorFiles = [];
+            document.getElementById('compressorPreview').innerHTML = '';
+            document.getElementById('compressorResults').innerHTML = '';
+            document.getElementById('compressorActions').classList.add('hidden');
+        }
+
+        async function processCompress() {
+            if (compressorFiles.length === 0) return;
+            
+            showLoading('Compressing images...');
+            const quality = parseInt(document.getElementById('compressionLevel').value) / 100;
+            
+            const results = [];
+            
+            for (let i = 0; i < compressorFiles.length; i++) {
+                updateProgress((i / compressorFiles.length) * 100);
+                const result = await compressImage(compressorFiles[i], quality);
+                results.push(result);
+            }
+            
+            updateProgress(100);
+            hideLoading();
+            displayResults('compressorResults', results, 'Compressed');
+        }
+
+        async function compressImage(file, quality) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        
+                        canvas.toBlob((blob) => {
+                            resolve({
+                                name: file.name,
+                                originalSize: file.size,
+                                newSize: blob.size,
+                                blob: blob,
+                                url: URL.createObjectURL(blob),
+                                reduction: Math.round((1 - blob.size / file.size) * 100)
+                            });
+                        }, 'image/jpeg', quality);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // =============================================
+        // IMAGE CONVERTER
+        // =============================================
+        function handleConverterFiles(files) {
+            converterFiles = [...converterFiles, ...Array.from(files).slice(0, 100 - converterFiles.length)];
+            updatePreview('converter', converterFiles, 'converterPreview', 'converterActions');
+        }
+
+        function clearConverter() {
+            converterFiles = [];
+            document.getElementById('converterPreview').innerHTML = '';
+            document.getElementById('converterResults').innerHTML = '';
+            document.getElementById('converterActions').classList.add('hidden');
+        }
+
+        async function processConvert() {
+            if (converterFiles.length === 0) return;
+            
+            showLoading('Converting images...');
+            const format = document.querySelector('input[name="convertFormat"]:checked').value;
+            
+            const results = [];
+            
+            for (let i = 0; i < converterFiles.length; i++) {
+                updateProgress((i / converterFiles.length) * 100);
+                const result = await convertImage(converterFiles[i], format);
+                results.push(result);
+            }
+            
+            updateProgress(100);
+            hideLoading();
+            displayResults('converterResults', results, 'Converted');
+        }
+
+        async function convertImage(file, format) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Fill white background for JPEG (transparency handling)
+                        if (format === 'jpeg') {
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        }
+                        
+                        ctx.drawImage(img, 0, 0);
+                        
+                        const mimeType = `image/${format}`;
+                        const quality = format === 'png' ? undefined : 0.92;
+                        
+                        canvas.toBlob((blob) => {
+                            const ext = format === 'jpeg' ? 'jpg' : format;
+                            const newName = file.name.replace(/\.[^/.]+$/, '') + '.' + ext;
+                            
+                            resolve({
+                                name: newName,
+                                originalSize: file.size,
+                                newSize: blob.size,
+                                blob: blob,
+                                url: URL.createObjectURL(blob),
+                                format: format.toUpperCase()
+                            });
+                        }, mimeType, quality);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // =============================================
+        // BULK PROCESSING
+        // =============================================
+        function handleBulkFiles(files) {
+            bulkFiles = [...bulkFiles, ...Array.from(files).slice(0, 100 - bulkFiles.length)];
+            updatePreview('bulk', bulkFiles, 'bulkPreview', 'bulkActions');
+            document.getElementById('bulkCounter').textContent = bulkFiles.length + ' images selected';
+        }
+
+        function clearBulk() {
+            bulkFiles = [];
+            processedBulkImages = [];
+            document.getElementById('bulkPreview').innerHTML = '';
+            document.getElementById('bulkResults').innerHTML = '';
+            document.getElementById('bulkActions').classList.add('hidden');
+            document.getElementById('bulkDownloadBtn').classList.add('hidden');
+            document.getElementById('bulkCounter').textContent = '0 images selected';
+        }
+
+        async function processBulk() {
+            if (bulkFiles.length === 0) return;
+            
+            showLoading('Processing bulk images...');
+            
+            const resizeEnabled = document.getElementById('bulkResizeEnabled').checked;
+            const compressEnabled = document.getElementById('bulkCompressEnabled').checked;
+            const width = parseInt(document.getElementById('bulkWidth').value);
+            const height = parseInt(document.getElementById('bulkHeight').value);
+            const quality = parseInt(document.getElementById('bulkQuality').value) / 100;
+            
+            processedBulkImages = [];
+            
+            for (let i = 0; i < bulkFiles.length; i++) {
+                updateProgress((i / bulkFiles.length) * 100);
+                
+                let result = {
+                    name: bulkFiles[i].name,
+                    originalSize: bulkFiles[i].size,
+                    blob: null
+                };
+                
+                const img = await loadImage(bulkFiles[i]);
+                const canvas = document.createElement('canvas');
+                let newWidth = img.width;
+                let newHeight = img.height;
+                
+                if (resizeEnabled) {
+                    const ratio = Math.min(width / img.width, height / img.height);
+                    newWidth = img.width * ratio;
+                    newHeight = img.height * ratio;
+                }
+                
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                
+                const blob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, 'image/jpeg', compressEnabled ? quality : 0.92);
+                });
+                
+                result.blob = blob;
+                result.newSize = blob.size;
+                result.url = URL.createObjectURL(blob);
+                result.reduction = Math.round((1 - blob.size / bulkFiles[i].size) * 100);
+                
+                processedBulkImages.push(result);
+            }
+            
+            updateProgress(100);
+            hideLoading();
+            displayResults('bulkResults', processedBulkImages, 'Processed');
+            document.getElementById('bulkDownloadBtn').classList.remove('hidden');
+        }
+
+        function loadImage(file) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    img.onload = () => resolve(img);
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function downloadBulkZip() {
+            if (processedBulkImages.length === 0) return;
+            
+            showLoading('Creating ZIP file...');
+            
+            const zip = new JSZip();
+            const folder = zip.folder('processed_images');
+            
+            for (let i = 0; i < processedBulkImages.length; i++) {
+                updateProgress((i / processedBulkImages.length) * 100);
+                const img = processedBulkImages[i];
+                const name = img.name.replace(/\.[^/.]+$/, '') + '.jpg';
+                folder.file(name, img.blob);
+            }
+            
+            const content = await zip.generateAsync({ type: 'blob' }, (metadata) => {
+                updateProgress(metadata.percent);
+            });
+            
+            hideLoading();
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = 'ImageToolsPro_Bulk_' + Date.now() + '.zip';
+            link.click();
+        }
+
+        // =============================================
+        // SOCIAL MEDIA OPTIMIZER
+        // =============================================
+        const socialSizes = {
+            whatsapp: { width: 800, height: 800, quality: 0.7 },
+            instagram: { width: 1080, height: 1080, quality: 0.85 },
+            facebook: { width: 1200, height: 630, quality: 0.85 },
+            twitter: { width: 1200, height: 675, quality: 0.85 }
+        };
+
+        function handleSocialFiles(files) {
+            socialFiles = [...socialFiles, ...Array.from(files).slice(0, 100 - socialFiles.length)];
+            updatePreview('social', socialFiles, 'socialPreview', 'socialActions');
+        }
+
+        function clearSocial() {
+            socialFiles = [];
+            document.getElementById('socialPreview').innerHTML = '';
+            document.getElementById('socialResults').innerHTML = '';
+            document.getElementById('socialActions').classList.add('hidden');
+        }
+
+        async function processSocial() {
+            if (socialFiles.length === 0) return;
+            
+            const platform = document.querySelector('input[name="socialPlatform"]:checked').value;
+            const settings = socialSizes[platform];
+            
+            showLoading(`Optimizing for ${platform}...`);
+            
+            const results = [];
+            
+            for (let i = 0; i < socialFiles.length; i++) {
+                updateProgress((i / socialFiles.length) * 100);
+                
+                const img = await loadImage(socialFiles[i]);
+                const canvas = document.createElement('canvas');
+                
+                // Calculate dimensions to cover the target size
+                const ratio = Math.max(settings.width / img.width, settings.height / img.height);
+                const scaledWidth = img.width * ratio;
+                const scaledHeight = img.height * ratio;
+                
+                canvas.width = settings.width;
+                canvas.height = settings.height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Center the image
+                const x = (settings.width - scaledWidth) / 2;
+                const y = (settings.height - scaledHeight) / 2;
+                ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+                
+                const blob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, 'image/jpeg', settings.quality);
+                });
+                
+                results.push({
+                    name: `${platform}_${socialFiles[i].name}`,
+                    originalSize: socialFiles[i].size,
+                    newSize: blob.size,
+                    blob: blob,
+                    url: URL.createObjectURL(blob),
+                    platform: platform
+                });
+            }
+            
+            updateProgress(100);
+            hideLoading();
+            displayResults('socialResults', results, `Optimized for ${platform}`);
+        }
+
+        // =============================================
+        // DISPLAY RESULTS
+        // =============================================
+        function displayResults(containerId, results, action) {
+            const container = document.getElementById(containerId);
+            
+            let totalOriginal = 0;
+            let totalNew = 0;
+            results.forEach(r => {
+                totalOriginal += r.originalSize;
+                totalNew += r.newSize;
+            });
+            
+            const savings = Math.round((1 - totalNew / totalOriginal) * 100);
+            
+            container.innerHTML = `
+                <div class="glass rounded-3xl p-6 mb-6">
+                    <h3 class="text-xl font-bold mb-4 gradient-text">Processing Complete!</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div class="glass rounded-xl p-4">
+                            <div class="text-2xl font-bold text-green-400">${results.length}</div>
+                            <div class="text-sm text-gray-400">Images Processed</div>
+                        </div>
+                        <div class="glass rounded-xl p-4">
+                            <div class="text-2xl font-bold text-blue-400">${formatFileSize(totalOriginal)}</div>
+                            <div class="text-sm text-gray-400">Original Size</div>
+                        </div>
+                        <div class="glass rounded-xl p-4">
+                            <div class="text-2xl font-bold text-purple-400">${formatFileSize(totalNew)}</div>
+                            <div class="text-sm text-gray-400">New Size</div>
+                        </div>
+                        <div class="glass rounded-xl p-4">
+                            <div class="text-2xl font-bold text-pink-400">${savings > 0 ? savings + '%' : 'N/A'}</div>
+                            <div class="text-sm text-gray-400">Saved</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center mb-6">
+                    <button onclick="downloadAllResults('${containerId}')" class="neon-button px-8 py-4 rounded-full text-white font-semibold">
+                        <i class="fas fa-download mr-2"></i>Download All as ZIP
+                    </button>
+                </div>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="${containerId}Grid">
+                    ${results.map((r, i) => `
+                        <div class="glass rounded-2xl overflow-hidden">
+                            <div class="aspect-video relative">
+                                <img src="${r.url}" alt="${r.name}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-4">
+                                <p class="font-medium truncate mb-2">${r.name}</p>
+                                <div class="flex justify-between text-sm text-gray-400 mb-3">
+                                    <span>${formatFileSize(r.originalSize)} → ${formatFileSize(r.newSize)}</span>
+                                    ${r.reduction ? `<span class="text-green-400">-${r.reduction}%</span>` : ''}
+                                </div>
+                                <a href="${r.url}" download="${r.name}" class="block text-center neon-button py-2 rounded-lg text-white text-sm">
+                                    <i class="fas fa-download mr-2"></i>Download
+                                </a>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            // Store results for ZIP download
+            container.dataset.results = JSON.stringify(results.map((r, i) => ({
+                name: r.name,
+                index: i
+            })));
+            window[`${containerId}Data`] = results;
+        }
+
+        async function downloadAllResults(containerId) {
+            const results = window[`${containerId}Data`];
+            if (!results || results.length === 0) return;
+            
+            showLoading('Creating ZIP file...');
+            
+            const zip = new JSZip();
+            
+            for (let i = 0; i < results.length; i++) {
+                updateProgress((i / results.length) * 100);
+                zip.file(results[i].name, results[i].blob);
+            }
+            
+            const content = await zip.generateAsync({ type: 'blob' });
+            
+            hideLoading();
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = 'ImageToolsPro_' + Date.now() + '.zip';
+            link.click();
+        }
+
+        // =============================================
+        // INITIALIZE
+        // =============================================
+        console.log('%c🖼️ ImageToolsPro Loaded!', 'color: #6366f1; font-size: 20px; font-weight: bold;');
+        console.log('%c All image processing happens in your browser - 100% private!', 'color: #8b5cf6;');
+    </script>
+</body>
+</html>
