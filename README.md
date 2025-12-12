@@ -1,2 +1,3 @@
 # Image-tools-pro
-here you can resize , manage your images
+Here you can resize , manage your images
+Preview link https://sanuverman0312-star.github.io/Image-tools-pro/
